@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, g
+from flask import Flask, jsonify, request, g, jsonify, make_response
 from src.estimator import estimator as estimate_import
 import time
 import dicttoxml
@@ -34,7 +34,7 @@ def home():
 def get_covid_estimate_normal():
     request_query = request.get_json()
     estimator_result = estimate_import(request_query)
-    return estimator_result
+    return jsonify(estimator_result)
 
 
 @app.route('/api/v1/on-covid-19/json', methods=['POST'])
@@ -47,7 +47,9 @@ def get_covid_estimate_xml():
     request_query = request.get_json()
     estimator_result = estimate_import(request_query)
     xml = dicttoxml.dicttoxml(estimator_result)
-    return xml
+    content = make_response(xml)
+    content.headers['Content-Type'] = 'application/xml'
+    return content
 
 
 @app.route('/api/v1/on-covid-19/logs', methods=['GET'])
@@ -63,4 +65,4 @@ def get_covid_estimate_xml():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
